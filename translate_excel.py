@@ -1,7 +1,8 @@
 from dotenv import dotenv_values
 config = dotenv_values(".env")
+import os
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, send_file
 
 from styleframe import StyleFrame
 import pandas as pd
@@ -17,10 +18,8 @@ translator = deepl.Translator(config["DEEPL_AUTH_KEY"])
 
 @translate_API.route('/translate/', methods=['GET'])
 def translate_respond():
-  response = {}
   file_in = 'example\SPRINT_eng.xlsx'
-  response["TEST"] = translate(file_in)
-  return jsonify(response)
+  return translate(file_in)
 
 
 # def translate_document(file_in):
@@ -77,4 +76,4 @@ def translate(file_in):
 
   excel_writer.save()
 
-  return "TRANSLATED!"
+  return send_file(FILE_OUT_PATH)
