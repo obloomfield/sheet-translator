@@ -1,6 +1,9 @@
 # app.py
 from flask import Flask, request, jsonify, render_template
-app = Flask(__name__)
+from translate_excel import translate_API
+
+app = Flask(__name__, template_folder="templates")
+app.register_blueprint(translate_API)
 
 @app.route('/getmsg/', methods=['GET'])
 def respond():
