@@ -16,8 +16,8 @@ import deepl
 
 translate_API = Blueprint('translate_API', __name__, template_folder='templates')
 
-FILE_IN_PATH = "example/to_translate.xlsx"
-FILE_OUT_PATH = "example/translated.xlsx"
+FILE_IN_PATH = "to_translate.xlsx"
+FILE_OUT_PATH = "translated.xlsx"
 ALLOWED_EXTENSIONS = {'xlsx'}
 
 translator = deepl.Translator(config["DEEPL_AUTH_KEY"])
