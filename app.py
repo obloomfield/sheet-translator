@@ -1,9 +1,14 @@
 # app.py
+from pathlib import Path
+import os
+from dotenv import dotenv_values
+
+config = os.environ
+if Path(".env").is_file():
+  config = dotenv_values(".env")
+
 from flask import Flask, request, jsonify, render_template
 from translate_excel import translate_API
-
-from dotenv import dotenv_values
-config = dotenv_values(".env")
 
 app = Flask(__name__, template_folder="templates")
 app.register_blueprint(translate_API)
