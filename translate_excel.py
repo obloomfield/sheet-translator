@@ -1,6 +1,10 @@
 from dotenv import dotenv_values
-config = dotenv_values(".env")
+from pathlib import Path
 import os
+
+config = os.environ
+if Path(".env").is_file():
+  config = dotenv_values(".env")
 
 from flask import Blueprint, send_file, request, flash, redirect, after_this_request, jsonify
 from werkzeug.utils import secure_filename
