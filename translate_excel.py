@@ -2,7 +2,8 @@ from dotenv import dotenv_values
 config = dotenv_values(".env")
 import os
 
-from flask import Blueprint, jsonify, send_file
+from flask import Blueprint, send_file, request, flash, redirect, after_this_request, jsonify
+from werkzeug.utils import secure_filename
 
 from styleframe import StyleFrame
 import pandas as pd
@@ -11,43 +12,63 @@ import deepl
 
 translate_API = Blueprint('translate_API', __name__, template_folder='templates')
 
-FILE_OUT_PATH = "example\SPRINT_fr_translate.xlsx"
-TARGET_LANG = "FR"
+FILE_IN_PATH = "example/to_translate.xlsx"
+FILE_OUT_PATH = "example/translated.xlsx"
+ALLOWED_EXTENSIONS = {'xlsx'}
 
 translator = deepl.Translator(config["DEEPL_AUTH_KEY"])
 
-@translate_API.route('/translate/', methods=['GET'])
-def translate_respond():
-  file_in = 'example\SPRINT_eng.xlsx'
-  return translate(file_in)
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+@translate_API.route('/upload_sheet', methods=['POST'])
+def upload():
+  print(request.form['lang'])
+  if 'excel-input' not in request.files:
+        flash('No file specified.')
+        return redirect("/")
+  if 'lang' not in request.form or request.form['lang'] == '':
+        flash('No language specified.')
+        return redirect("/")
+  f = request.files['excel-input']
+  target_lang = request.form['lang']
+  print("TRANSLATING TO: " + target_lang)
+  if f.filename == '':
+        flash('No output file')
+        return redirect("/")
+  if f and allowed_file(f.filename):
+        f.save(FILE_IN_PATH)
+        return translate(FILE_IN_PATH, target_lang)
+  @after_this_request
+  def remove_files(response):
+    print("[CLEANUP] removing files post upload/download pair.")
+    try:
+        os.remove(FILE_OUT_PATH)
+        os.remove(FILE_IN_PATH)
+    except Exception as error:
+        print(error)
+    return response
+  # print(f.filename)
+  # print(allowed_file(f.filename))
+  return {"error": "THE INPUTTED FILE IS INVALID"}, 500
 
-# def translate_document(file_in):
-#   try:
-#     # Using translate_document_from_filepath() with file paths 
-#     translator.translate_document_from_filepath(
-#         file_in,
-#         FILE_OUT_PATH,
-#         target_lang="FR",
-#         formality="more"
-#     )
+@translate_API.route('/get_langs', methods=['GET'])
+def get_langs():
+  total_langs = set()
+  for language_pair in translator.get_glossary_languages():
+    total_langs.add(language_pair.target_lang)
+  return jsonify(list(total_langs))
 
-#   except deepl.DocumentTranslationException as error:
-#       # If an error occurs during document translation after the document was
-#       # already uploaded, a DocumentTranslationException is raised. The
-#       # document_handle property contains the document handle that may be used to
-#       # later retrieve the document from the server, or contact DeepL support.
-#       doc_id = error.document_handle.id
-#       doc_key = error.document_handle.key
-#       print(f"Error after uploading ${error}, id: ${doc_id} key: ${doc_key}")
-#   except deepl.DeepLException as error:
-#       # Errors during upload raise a DeepLException
-#       print(error)
-
-#   return "TRANSLATED DOCUMENT"
-
-def translate(file_in):
+def translate(file_in, target_lang):
   
+  usage = translator.get_usage()
+  if usage.any_limit_reached:
+    flash("TRANSACTION LIMIT REACHED...")
+    return redirect("/")
+
+  print(file_in)
+
   xl = pd.ExcelFile(file_in)
   translate_cache = {}
   # print(sf)
@@ -65,7 +86,7 @@ def translate(file_in):
           init_value = str(cell.value)
           if (init_value not in translate_cache):
             
-            cell.value = translator.translate_text(cell.value, target_lang=TARGET_LANG)
+            cell.value = translator.translate_text(cell.value, target_lang=target_lang)
             translate_cache[init_value] = cell.value
             # print("translated: " + str(init_value) + " to " + str(cell.value))
           else:
