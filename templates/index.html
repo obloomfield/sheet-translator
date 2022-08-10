@@ -1,34 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-      <meta charset="utf-8" />
-      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.1/css/fontawesome.min.css">
-      <link rel="stylesheet" href="../public/css/styles.css" />
-      <link rel="icon" href="../public/img/favicon/favicon.ico" />
-      <title>Sheet Translator</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.1/css/fontawesome.min.css"
+    />
+    <link rel="stylesheet" href="../public/css/styles.css" />
+    <link rel="icon" href="../public/img/favicon/favicon.ico" />
+    <title>Sheet Translator</title>
   </head>
   <body>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <main style="padding: 1em">
       <h1><b>EXCEL TRANSLATOR!</b></h1>
       <h3>Input a .xlsx file:</h3>
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          <ul class=flashes>
-          {% for category, message in messages %}
-            <li class="{{ category }}" style="color: red; font-weight: bold;">{{ message }}</li>
-          {% endfor %}
-          </ul>
-        {% endif %}
-      {% endwith %}
-      <form action="/upload_sheet" method="post" enctype = "multipart/form-data">
-        <input type="file" id="excel-input" 
-          name="excel-input" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %}
+      <ul class="flashes">
+        {% for category, message in messages %}
+        <li class="{{ category }}" style="color: red; font-weight: bold">
+          {{ message }}
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %} {% endwith %}
+      <form action="/upload_sheet" method="post" enctype="multipart/form-data">
+        <input
+          type="file"
+          id="excel-input"
+          name="excel-input"
+          accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        />
         To:
-        <input name="lang" list="lang-select" placeholder="select language...">
+        <input
+          name="lang"
+          list="lang-select"
+          placeholder="select language..."
+        />
         <datalist id="lang-select">
           <option value="EN">English</option>
           <option value="FR">French</option>
@@ -38,12 +53,15 @@
           <option value="PL">Polish</option>
           <option value="ES">Spanish</option>
         </datalist>
-        <input type="submit" value="TRANSLATE"/>
-        <br><br>
-        <p style="color: grey">Due to the deepl api being slow on multiple reads, your file may take a while if it has many rows, please be patient. If you see this, the server is running :)</p>
+        <input type="submit" value="TRANSLATE" />
+        <br /><br />
+        <p style="color: grey">
+          Due to the deepl api being slow on multiple reads, your file may take
+          a while if it has many rows, please be patient. If you see this, the
+          server is running :)
+        </p>
         <p style="color: grey">Support for more file formats coming soon!</p>
       </form>
-      
     </main>
   </body>
 </html>

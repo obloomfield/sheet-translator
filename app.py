@@ -7,7 +7,7 @@ config = os.environ
 if Path(".env").is_file():
   config = dotenv_values(".env")
 
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, render_template
 from translate_excel import translate_API
 
 app = Flask(__name__, template_folder="templates")
